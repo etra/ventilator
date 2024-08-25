@@ -34,6 +34,8 @@ class App:
         self.log.info(f"Starting the app... in {'debug' if self.is_debug else 'non debug'} mode")
 
     def on_message(self, message_id, message):
+
+        return "Hello, I'm a bot! I'm here to help you with your questions."
         #context_from_memory = self.memory.get(message_id)
         #todo: implement check for if memory has no knowlage
         #chatgpt.call(message)

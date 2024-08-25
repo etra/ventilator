@@ -1,5 +1,5 @@
 from ventilator.client import Client as ClientInterface
-from discord import Client as DiscordClient, Intents, Message
+from discord import Client as DiscordClient, Intents, Message, Thread
 
 
 class Client(ClientInterface):
@@ -22,6 +22,34 @@ class Client(ClientInterface):
         self.client.run(token=self.app.config.DISCORD_TOKEN)
 
     async def on_message(self, message: Message):
+        if message.author.bot:
+            self.app.log.info(f'Ignoring bots')
+            return
+        #this is mention
+        if self.client.user in message.mentions \
+                or message.guild is None \
+                or (isinstance(message.channel, Thread) and message.channel.owner.id == self.client.user.id):
+
+            if message.guild is None:
+                await message.channel.send(f"Hi {message.author.name}, I do not support DM's in Discord yet!")
+                return
+
+            thread = None
+            if isinstance(message.channel, Thread):
+                thread = message.channel
+
+            if thread is None:
+                thread = await message.create_thread(name=f"Thread for: {message.content}")
+
+            if thread is None:
+                raise Exception("Thread is None")
+
+            #todo clean content of @mentioons
+            message_id = thread.id
+            response = self.app.on_message(message_id, message.content)
+
+            await thread.send(response)
+
         return
         #todo: after message is cleared and it's clear what we need todo (send it to self.app.on_message(....)) resceived response will be used as message to send to channel
 
