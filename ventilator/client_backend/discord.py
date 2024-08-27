@@ -25,14 +25,14 @@ class Client(ClientInterface):
         if message.author.bot:
             self.app.log.info(f'Ignoring bots')
             return
+
+        if message.guild is None:
+            await message.channel.send(f"Hi {message.author.name}, I do not support DM's in Discord yet!")
+            return
+
         #this is mention
         if self.client.user in message.mentions \
-                or message.guild is None \
                 or (isinstance(message.channel, Thread) and message.channel.owner.id == self.client.user.id):
-
-            if message.guild is None:
-                await message.channel.send(f"Hi {message.author.name}, I do not support DM's in Discord yet!")
-                return
 
             thread = None
             if isinstance(message.channel, Thread):
@@ -45,8 +45,8 @@ class Client(ClientInterface):
                 raise Exception("Thread is None")
 
             #todo clean content of @mentioons
-            message_id = thread.id
-            response = self.app.on_message(message_id, message.content)
+            conversation_id = thread.id
+            response = self.app.on_message(conversation_id, message.content)
 
             await thread.send(response)
 

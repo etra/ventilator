@@ -8,7 +8,8 @@ class Config:
     CLIENT_BACKEND = os.environ.get("CLIENT_BACKEND", "discord")
     DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN", None)
     MEMORY_BACKEND = os.environ.get("MEMORY_BACKEND", "memory")
-    GPT_BACKEND = os.environ.get("GPT_BACKEND", "openai")
+    LLM_BACKEND = os.environ.get("LLM_BACKEND", "openai")
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", None)
 
 
 config = Config()
