@@ -15,7 +15,6 @@ class LLM(LLMInterface):
         return self._client
 
     def chat(self, conversation_id):
-        #todo: convers messages json building to to_dict method
         response = self.client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -67,7 +66,6 @@ class LLM(LLMInterface):
 #
 #     def chat(self, conversation_id):
 #         self.app.memory.display(conversation_id)
-#         #todo: convers messages json building to to_dict method
 #         response = self.client.chat.completions.create(
 #             model="gpt-4o",
 #             messages=[

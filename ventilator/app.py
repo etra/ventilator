@@ -67,17 +67,7 @@ class App:
 
         self.memory.add(conversation_id, MemoryItem.user_message(messages))
 
-        #conversation is full (with newely added message)
-        #we do somerhing
         response = self.llm.chat(conversation_id)
-        #todo: implement response chunking up to 2000 charecters (split by paragpraphs)
 
         self.memory.display(conversation_id)
         return response
-        #context_from_memory = self.memory.get(message_id)
-        #todo: implement check for if memory has no knowlage
-        #chatgpt.call(message)
-        #
-        # return ....
-        #todo: implement this
-        pass
