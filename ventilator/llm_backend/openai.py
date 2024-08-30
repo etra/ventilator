@@ -19,12 +19,11 @@ class LLM(LLMInterface):
         response = self.client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": memory_item.role, "content": memory_item.content}
-                for memory_item in self.app.memory.get(conversation_id)
+                memory_item.to_dict() for memory_item in self.app.memory.get(conversation_id)
             ]
         )
         self.app.log.info(response.choices[0].message)
-        self.app.memory.add(conversation_id, MemoryItem(response.choices[0].message.role, response.choices[0].message.content))
+        self.app.memory.add(conversation_id, MemoryItem(response.choices[0].message.to_dict()))
         return response.choices[0].message.content
 
 #

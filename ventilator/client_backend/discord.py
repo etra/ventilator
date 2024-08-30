@@ -12,23 +12,24 @@ class TextPart:
 
 def split_response(response: str):
     if len(response) < 2000:
-        return TextPart(response, '')
-    paragraphs = response.split("\n")
-    for paragraph in paragraphs:
-        if len(paragraph) > 2000:
-            sentences = paragraph.split(".")
-            for sentence in sentences:
-                if len(sentence) > 2000:
-                    words = sentence.split(" ")
-                    for word in words:
-                        if len(word) > 2000:
-                            raise Exception("Word is too long")
-                        else:
-                            yield TextPart(word, ' ')
-                else:
-                    yield TextPart(sentence, '.')
-        else:
-            yield TextPart(paragraph, '\n')
+        yield TextPart(response, '')
+    else:
+        paragraphs = response.split("\n")
+        for paragraph in paragraphs:
+            if len(paragraph) > 2000:
+                sentences = paragraph.split(".")
+                for sentence in sentences:
+                    if len(sentence) > 2000:
+                        words = sentence.split(" ")
+                        for word in words:
+                            if len(word) > 2000:
+                                raise Exception("Word is too long")
+                            else:
+                                yield TextPart(word, ' ')
+                    else:
+                        yield TextPart(sentence, '.')
+            else:
+                yield TextPart(paragraph, '\n')
 
 def combine_chunks(text):
     response_chunk = []
@@ -40,6 +41,7 @@ def combine_chunks(text):
             response_chunk.append(chunk)
             chunk = part.split_type + part.text
 
+    response_chunk.append(chunk)
     return response_chunk
 
 class Client(ClientInterface):

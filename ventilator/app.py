@@ -65,7 +65,7 @@ class App:
         if not conversation:
             self._init_conversation(conversation_id)
 
-        self.memory.add(conversation_id, MemoryItem("user", messages))
+        self.memory.add(conversation_id, MemoryItem.user_message(messages))
 
         #conversation is full (with newely added message)
         #we do somerhing

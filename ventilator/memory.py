@@ -1,26 +1,24 @@
 #using dict as storage so that we can store the data in memory
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Dict
 
 
 class MemoryItem:
-    role: str
-    content: str
+    message: Dict = None
 
-    def __init__(self, role: str, content: str):
-        self.role = role
-        self.content = content
+    def __init__(self, message: Dict):
+        self.message = message
 
     def to_dict(self):
-        return {
-            "role": self.role,
-            "content": self.content
-        }
+        return self.message
 
     @staticmethod
     def from_dict(data: dict):
-        return MemoryItem(data["role"], data["content"])
+        return MemoryItem(data["message"])
 
+    @staticmethod
+    def user_message(message: str):
+        return MemoryItem({"role": "user", "content": message})
 
 class Memory(ABC):
 
@@ -42,7 +40,7 @@ class Memory(ABC):
         has_conversation = False
         for conversation in self.get(conversation_id=conversation_id):
             has_conversation = True
-            self.app.log.info(conversation.role + ": " + conversation.content)
+            self.app.log.info(conversation.message)
 
         if not has_conversation:
             self.app.log.info("No conversation found for conversation_id: " + conversation_id)
