@@ -18,3 +18,4 @@ import sys
 if __name__ == '__main__':
     app = App(config=config, log=log)
     app.run()
+    # app.test()

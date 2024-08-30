@@ -1,6 +1,46 @@
 from ventilator.client import Client as ClientInterface
 from discord import Client as DiscordClient, Intents, Message, Thread
+from datetime import datetime
 
+class TextPart:
+    def __init__(self, text: str, split_type: str = None):
+        self.text = text
+        self.split_type = split_type
+
+    split_type = None
+    text = None
+
+def split_response(response: str):
+    if len(response) < 2000:
+        return TextPart(response, '')
+    paragraphs = response.split("\n")
+    for paragraph in paragraphs:
+        if len(paragraph) > 2000:
+            sentences = paragraph.split(".")
+            for sentence in sentences:
+                if len(sentence) > 2000:
+                    words = sentence.split(" ")
+                    for word in words:
+                        if len(word) > 2000:
+                            raise Exception("Word is too long")
+                        else:
+                            yield TextPart(word, ' ')
+                else:
+                    yield TextPart(sentence, '.')
+        else:
+            yield TextPart(paragraph, '\n')
+
+def combine_chunks(text):
+    response_chunk = []
+    chunk = ''
+    for part in split_response(text):
+        if len(chunk) + len(part.text) < 2000:
+            chunk += part.split_type + part.text
+        else:
+            response_chunk.append(chunk)
+            chunk = part.split_type + part.text
+
+    return response_chunk
 
 class Client(ClientInterface):
 
@@ -21,6 +61,28 @@ class Client(ClientInterface):
     def run(self):
         self.client.run(token=self.app.config.DISCORD_TOKEN)
 
+    #we need to chunk response to 2000 charecters and sent it one by one to discord thread and it should split message by paragraphs or sentences or words. (what ever is possible)
+    def split_response(self, response: str):
+        if len(response) < 2000:
+            return [response]
+
+        paragraphs = response.split("\n")
+        for paragraph in paragraphs:
+            if len(paragraph) > 2000:
+                sentences = paragraph.split(".")
+                for sentence in sentences:
+                    if len(sentence) > 2000:
+                        words = sentence.split(" ")
+                        for word in words:
+                            if len(word) > 2000:
+                                raise Exception("Word is too long")
+                    else:
+                        yield sentence
+
+
+
+        return response
+
     async def on_message(self, message: Message):
         if message.author.bot:
             self.app.log.info(f'Ignoring bots')
@@ -39,7 +101,7 @@ class Client(ClientInterface):
                 thread = message.channel
 
             if thread is None:
-                thread = await message.create_thread(name=f"Thread for: {message.content}")
+                thread = await message.create_thread(name=f"Thread for: {message.author} {datetime.now()}")
 
             if thread is None:
                 raise Exception("Thread is None")
@@ -48,7 +110,9 @@ class Client(ClientInterface):
             conversation_id = thread.id
             response = self.app.on_message(conversation_id, message.content)
 
-            await thread.send(response)
+            for chunk in combine_chunks(response):
+                await thread.send(chunk)
+
 
         return
         #todo: after message is cleared and it's clear what we need todo (send it to self.app.on_message(....)) resceived response will be used as message to send to channel
